@@ -76,6 +76,22 @@ class VRedis(redis.Redis):
                     break
         return output
     
+    def dbsize(self):
+        """ Run dbsize on all the servers and return the sum """
+        result = 0
+        for host, limit in self.ring:
+            tmp = self.execute_command_on_server(host, 'DBSIZE')
+            result = result + tmp
+        return result
+    
+    def keys(self, pattern='*'):
+        """ Run keys on all the servers and return the combines set """
+        result = []
+        for host, limit in self.ring:
+            tmp = self.execute_command_on_server(host, 'KEYS', pattern)
+            result.extend(tmp)
+        return result
+    
     def mset(self, mapping):
         """
         Split the keys into dictionaries per server, 
@@ -106,6 +122,7 @@ class VRedis(redis.Redis):
 
     def execute_command(self, *args, **options):
         """ Picks the correct server and executes command on that server """
+        
         if len(args) == 1:
             # execute command on all servers
             # assume we have to return a boolean value
@@ -127,7 +144,7 @@ class VRedis(redis.Redis):
         command_name = args[0]
         pool = self.pools[server]
         connection = pool.get_connection(command_name, **options)
-
+        
         try:
             connection.send_command(*args)
             return self.parse_response(connection, command_name, **options) 

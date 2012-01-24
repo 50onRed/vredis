@@ -44,8 +44,9 @@ class VRedisTest(unittest.TestCase):
         self.assertEquals(s, "1:1")
     
     def test_get(self):
-        self.vr.set("test", 1)
-        self.assertEquals(self.vr.get("test"), 1)
+        self.vr.set("test", "1")
+        self.assertEquals(self.vr.get("test"), "1")
+        self.assertEquals(self.vr.dbsize(), 1)
 
     def test_mget(self):
         data = {
@@ -56,6 +57,7 @@ class VRedisTest(unittest.TestCase):
             "6": 6  # server 1
         }
         self.assertEquals(self.vr.mset(data), True)
+        self.assertEquals(self.vr.dbsize(), len(data))
         self.assertEquals(self.vr.mget(data.keys()), data.values())
         for i in data:
             self.assertEquals(self.vr.get(i), data[i])
@@ -73,6 +75,22 @@ class VRedisTest(unittest.TestCase):
         self.assertEquals(self.vr.mget(data.keys()), data.values())
         for i in data:
             self.assertEquals(self.vr.get(i), data[i])
+        self.assertEquals(self.vr.dbsize(), len(data))
+    
+    def test_keys(self):
+        data = {
+            "1": 1, # server 3
+            "2": 2, # server 3
+            "3": 3, # server 3
+            "4": 4, # server 2
+            "6": 6  # server 1
+        }
+        self.assertEquals(self.vr.mset(data), True)
+        self.assertEquals(self.vr.dbsize(), len(data))
+        keys = self.vr.keys("*")
+        self.assertEquals(len(keys), len(data.keys()))
+        for key in data.keys():
+            self.assertTrue(key in keys)
     
 if __name__ == '__main__':
     unittest.main()

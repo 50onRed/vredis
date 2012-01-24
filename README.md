@@ -25,10 +25,14 @@ From source:
     True
     >>> r.get('foo')
     'bar'
+    
+hosts parameter is a list of tuples, one for each server. Each tuple specifies hostname, port, and ending bucket in the hash ring (out of 255).
+
+The example above has 2 identical hosts using port 6379, first one gets hashes 0..128, second one gets 129..255. 
 
 ## Current stage
 
-set, get, mset, and mget have been implemented and tested in VRedis
+dbsize, keys, flushall, set, get, mset, and mget have been implemented and tested in VRedis
 
 ## TODO
 

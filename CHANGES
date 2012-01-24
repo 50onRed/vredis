@@ -1,0 +1,5 @@
+* 1.1.0
+    * implement dbsize, keys commands
+    * better mocking in unit tests
+* 1.0
+    * initial release, implement get, set, mget, and mset
